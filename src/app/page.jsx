@@ -1,28 +1,95 @@
 "use client";
 import { useSession, signIn, signOut } from "next-auth/react";
+import { useState } from "react";
+
+// export default function Component() {
+//   const { data: session } = useSession();
+//   if (session) {
+//     return (
+//       <>
+//         <div className=" flex min-h-screen flex-col items-center justify-center p-24">
+//           Signed in as <b className=" uppercase text-slate-300">{session.user.email}</b> <br />
+//           <img className=" p-3  w-24 rounded-full my-3" src={session.user.image} alt="" />
+//           <button className=" p-3 bg-red-600 hover:bg-red-700 rounded-md my-3" onClick={() => signOut()}>Sign out</button>
+//         </div>
+//       </>
+//     );
+//   }
+//   return (
+//     <>
+//       <div className="flex min-h-screen flex-col items-center justify-center p-24">
+//         Not signed in <br />
+//         <button className=" p-3 bg-red-600 hover:bg-red-700 rounded-md my-3" onClick={() => signIn()}>Sign in</button>
+//       </div>
+//     </>
+//   );
+// }
+
 
 export default function Component() {
   const { data: session } = useSession();
+
+  const [userCredentials, setUserCredentials] = useState({
+    username: "",
+    password: "",
+  });
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const result = await signIn("credentials", {
+      username: userCredentials.username,
+      password: userCredentials.password,
+      redirect: false,
+
+    });
+
+    if (result.error) {
+      console.error("Error signing in:", result.error);
+    } else {
+      console.log("User signed in:", result.user);
+    }
+  };
+
   if (session) {
     return (
       <>
-        <div className=" flex min-h-screen flex-col items-center justify-center p-24">
-          Signed in as <b className=" uppercase text-slate-300">{session.user.email}</b> <br />
-          <img className=" p-3  w-24 rounded-full my-3" src={session.user.image} alt="" />
-          <button className=" p-3 bg-red-600 hover:bg-red-700 rounded-md my-3" onClick={() => signOut()}>Sign out</button>
+        <div className="flex min-h-screen flex-col items-center justify-center p-24">
+          Signed in as <b className="uppercase text-slate-300">{session.user.email}</b> <br />
+          <img className="p-3 w-24 rounded-full my-3" src={session.user.image} alt="" />
+          <button className="p-3 bg-red-600 hover:bg-red-700 rounded-md my-3" onClick={() => signOut()}>Sign out</button>
         </div>
       </>
     );
   }
+
   return (
     <>
-      <div className="flex min-h-screen flex-col items-center justify-center p-24">
-        Not signed in <br />
-        <button className=" p-3 bg-red-600 hover:bg-red-700 rounded-md my-3" onClick={() => signIn()}>Sign in</button>
-      </div>
+      <form onSubmit={handleSubmit} className="flex min-h-screen flex-col items-center justify-center p-24">
+        <label htmlFor="username">Username:</label>
+        <input
+          type="text"
+          id="username"
+          name="username"
+          value={userCredentials.username}
+          onChange={(e) => setUserCredentials({ ...userCredentials, username: e.target.value })}
+        />
+        <label htmlFor="password">Password:</label>
+        <input
+          type="password"
+          id="password"
+          name="password"
+          value={userCredentials.password}
+          onChange={(e) => setUserCredentials({ ...userCredentials, password: e.target.value })}
+        />
+        <button type="submit" className="p-3 bg-red-600 hover:bg-red-700 rounded-md my-3">Sign in</button>
+      </form>
     </>
   );
 }
+
+
+
+
 
 // import Image from "next/image";
 
